@@ -1,7 +1,15 @@
+#!/usr/bin/env python
+# coding=utf-8
+'''
+@Author: ArlenCai
+@Date: 2020-01-16 00:35:35
+@LastEditTime : 2020-02-11 16:48:32
+'''
 import accimage
 import numpy as np
 import imageio
 import os
+import ctypes
 
 ACCIMAGE_SAVE = os.environ.get('ACCIMAGE_SAVE', '')
 if len(ACCIMAGE_SAVE) and ACCIMAGE_SAVE.lower() not in {'0', 'false', 'no'}:
@@ -26,8 +34,7 @@ def save_image(path, image):
 
 def test_reading_image():
     image = accimage.Image("chicago.jpg")
-    if SAVE_IMAGES:
-        save_image('test_reading_image.jpg', image)
+    save_image('test_reading_image.jpg', image)
     assert image.width == 1920
     assert image.height == 931
 
@@ -65,3 +72,12 @@ def test_flipping():
     assert image.width == 1920
     assert image.height == 931
     np.testing.assert_array_equal(new_image_np[:, ::-1, :], original_image_np)
+
+def test_buffer():
+    with open("chicago.jpg", "rb") as fp:
+        buf = np.frombuffer(fp.read(), np.uint8)
+        image = accimage.Image(buf)
+        save_image('test_buffer.jpg', image)
+if __name__ == "__main__":
+    test_buffer()
+

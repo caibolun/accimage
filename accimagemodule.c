@@ -240,7 +240,7 @@ static PyTypeObject Image_Type = {
     0,                          /*tp_free*/
     0,                          /*tp_is_gc*/
 };
-
+/*
 static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
     static char* argnames[] = { "path", NULL };
     const char *path;
@@ -250,6 +250,23 @@ static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
 
     image_from_jpeg(self, path);
 
+    return PyErr_Occurred() ? -1 : 0;
+}
+*/
+
+static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
+    static char* argnames[] = { "buffer", NULL };
+    PyObject* buffer_object;
+    Py_buffer buffer;
+    static const int FLAGS = PyBUF_ANY_CONTIGUOUS | PyBUF_FORMAT;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O", argnames, &buffer_object)) {
+        return -1;
+    }
+    if (PyObject_GetBuffer(buffer_object, &buffer, FLAGS) == -1) {
+        return -1;
+    }
+    image_from_buffer(self, (unsigned char*) buffer.buf, buffer.len);
     return PyErr_Occurred() ? -1 : 0;
 }
 
