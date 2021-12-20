@@ -2,6 +2,7 @@
 #include <structmember.h>
 
 #include "accimage.h"
+#define PyString_Type PyBytes_Type
 
 static struct PyMemberDef Image_members[] = {
     { "channels", T_INT, offsetof(ImageObject, channels), READONLY, "number of channels" },
@@ -240,19 +241,20 @@ static PyTypeObject Image_Type = {
     0,                          /*tp_free*/
     0,                          /*tp_is_gc*/
 };
+
 /*
-static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
-    static char* argnames[] = { "path", NULL };
-    const char *path;
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", argnames, &path))
-        return -1;
-
-    image_from_jpeg(self, path);
-
-    return PyErr_Occurred() ? -1 : 0;
-}
-*/
+ * static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
+ *     static char* argnames[] = { "path", NULL };
+ *         const char *path;
+ *
+ *             if (!PyArg_ParseTupleAndKeywords(args, kwds, "s", argnames, &path))
+ *                     return -1;
+ *
+ *                         image_from_jpeg(self, path);
+ *
+ *                             return PyErr_Occurred() ? -1 : 0;
+ *                             }
+ *                             */
 
 static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
     static char* argnames[] = { "buffer", NULL };
@@ -267,6 +269,7 @@ static int Image_init(ImageObject *self, PyObject *args, PyObject *kwds) {
         return -1;
     }
     image_from_buffer(self, (unsigned char*) buffer.buf, buffer.len);
+    PyBuffer_Release(&buffer);
     return PyErr_Occurred() ? -1 : 0;
 }
 
